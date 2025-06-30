@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>日本語文法検索</title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 2em;
+            background-color: #f9f9f9;
+        }
+
+        input[type="file"],
+        input[type="text"] {
+            padding: 8px;
+            font-size: 16px;
+            margin-bottom: 1em;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 16px;
+        }
+
+        .result {
+            background: #fff;
+            padding: 16px;
+            margin-top: 20px;
+            border-left: 5px solid #007acc;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .result h2 {
+            margin: 0;
+            color: #007acc;
+        }
+
+        .example {
+            margin-left: 1em;
+            color: #333;
+            font-weight: bold;
+            margin-top: 0.5em;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .ex-title {
+            display: inline-block;
+            background-color: #d1f0e5;
+            color: #00695c;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 6px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>日本語文法検索（N3～N1）</h1>
+
+    <input type="text" id="searchInput" placeholder="文法、含义、例句で検索..." oninput="debouncedSearch()" />
+
+    <div id="results"></div>
+
+    <script>
+        
+        let grammarData = [];
+        let debounceTimer = null;
+
+        window.onload = () => {
+            grammarData = window.getGrammarData(); // 通过 preload.js 提供的接口
+            console.log("已加载语法数据", grammarData.length);
+            document.getElementById('searchInput').focus();
+        };
+
+        // 防抖函数
+        function debouncedSearch() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                search();
+            }, 300); // 300ms 不输入就执行搜索，你可以改成 500ms 等
+        }
+
+        function highlight(text, keyword) {
+            if (!keyword) return text;
+            const pattern = new RegExp(`(${keyword})`, 'gi');
+            return text.replace(pattern, '<mark>$1</mark>');
+        }
+
+        function search() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const resultDiv = document.getElementById('results');
+            resultDiv.innerHTML = "";
+
+            if (!grammarData.length) {
+                resultDiv.innerHTML = "<p>まずExcelファイルを読み込んでください。</p>";
+                return;
+            }
+
+            const filtered = grammarData.filter(group => {
+                const first = group[0];
+                return (
+                    (first['语法'] && first['语法'].toLowerCase().includes(keyword)) ||
+                    (first['含义'] && first['含义'].toLowerCase().includes(keyword)) ||
+                    group.some(item => item['例句'] && item['例句'].toLowerCase().includes(keyword))
+                );
+            });
+
+            if (!filtered.length) {
+                resultDiv.innerHTML = "<p>該当する文法が見つかりませんでした。</p>";
+                return;
+            }
+
+            for (const group of filtered) {
+                const first = group[0];
+                const div = document.createElement('div');
+                div.className = 'result';
+
+                let html = `<h2>${highlight(first['语法'] || '(不明)', keyword)}</h2>`;
+                html += `<p><strong>【含义】</strong> ${highlight(first['含义'] || 'なし', keyword)}</p>`;
+                // if (first['接续']) {
+                //     html += `<p><strong>【接续】</strong> ${first['接续']}</p>`;
+                // }
+                html += `<p><strong>【例文】</strong></p>`;
+                let idx = 1;
+
+                for (const item of group) {
+                    if (item['例句']) {
+                        html += `<div class="example"><div class="ex-title">例句${idx++}：</div><div>${highlight(item['例句'], keyword)}</div></div>`;
+                    }
+                }
+
+                div.innerHTML = html;
+                resultDiv.appendChild(div);
+            }
+        }
+    </script>
+
+</body>
+
+</html>

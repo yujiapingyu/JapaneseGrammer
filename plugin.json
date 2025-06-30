@@ -1,0 +1,24 @@
+{
+    "version": "1.0.0",
+    "pluginName": "日语语法大全",
+    "description": "搜索N1~N3日语语法",
+    "author": "David Fish",
+    "homepage": "",
+    "main": "index.html",
+    "logo": "resource/jp.png",
+    "preload": "preload.js",
+    "platform": [
+        "win32",
+        "darwin"
+    ],
+    "features": [
+        {
+            "code": "grammer_search",
+            "explain": "Obsidian 搜索",
+            "cmds": [
+                "og",
+                "grammer"
+            ]
+        }
+    ]
+}
