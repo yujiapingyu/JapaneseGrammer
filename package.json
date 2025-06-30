@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "pinyin-pro": "^3.19.5",
+    "xlsx": "0.18.5"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^5.2.2"
+  }
+}
