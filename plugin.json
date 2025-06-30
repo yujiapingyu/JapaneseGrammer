@@ -3,7 +3,7 @@
     "pluginName": "日语语法大全",
     "description": "搜索N1~N3日语语法",
     "author": "David Fish",
-    "homepage": "",
+    "homepage": "https://github.com/yujiapingyu/JapaneseGrammer/tree/master",
     "main": "index.html",
     "logo": "resource/jp.png",
     "preload": "preload.js",
